@@ -108,7 +108,7 @@ plugins:
   - serverless-prune-plugin
 
 functions:
-  lfx-security-ossf-scanner:
+  lfx-security-snyk-scm-refresh:
     name: lfx-security-snyk-scm-refresh
     handler: main.lambda_handler
     description: "LFX Security Snyk SCM Refresh Lambda"
