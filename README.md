@@ -13,6 +13,9 @@ For repos with at least 1 project already in Snyk:
 - Enable Snyk Code analysis for repos
 - Detect deleted repos and log for review
 
+## Prerequisites
+Python3.7 
+
 ## Deployment
 
 ```bash
@@ -20,8 +23,46 @@ yarn deploy:dev
 ```
 
 ## Command Line Testing
+### Setup
+Add dependencies
+``` bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+Add the Snyk Scm tool
+ ``` bash
+ cd lfx-security-snyk-scm-refresh
+ git clone git clone https://github.com/snyk-tech-services/snyk-scm-refresh.git
+ ```
 
-TODO
+Add Module values that help adding the tool to the PYTHONPATH 
+
+``` bash
+cd snyk-scm-refresh
+touch __init__.py
+cat << 'EOF' > __init__.py
+import common
+from app import run
+EOF
+
+```
+
+
+### Environment variables
+
+```
+export PYTHONPATH="$PWD:$PWD/snyk-scm-refresh"
+export GITHUB_ENTERPRISE_HOST=<redacted>
+export GITHUB_ENTERPRISE_TOKEN=<redacted>
+export SNYK_TOKEN=<redacted>
+```
+
+### Run 
+```
+python main.py
+```
+
 
 ## References
 
