@@ -1,4 +1,9 @@
-# lfx-security-snyk-scm-refresh
+# LFX Security Snyk SCM Refresh Lambda
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Build PR](https://github.com/LFX-Engineering/lfx-security-snyk-scm-refresh/workflows/Build%20and%20Test%20Pull%20Request/badge.svg)](https://github.com/LFX-Engineering/lfx-security-snyk-scm-refresh/actions)
+[![Build PR](https://github.com/LFX-Engineering/lfx-security-snyk-scm-refresh/workflows/Snyk%20Scan/badge.svg)](https://github.com/LFX-Engineering/lfx-security-snyk-scm-refresh/actions)
+[![Build PR](https://github.com/LFX-Engineering/lfx-security-snyk-scm-refresh/workflows/Yarn%20Dependency%20Audit/badge.svg)](https://github.com/LFX-Engineering/lfx-security-snyk-scm-refresh/actions)
 
 This is a wrapper lambda for the [Snyk SCM refresh python tool](https://github.com/snyk-tech-services/snyk-scm-refresh) which cleans up the Snyk projects after a successful scan.
 
