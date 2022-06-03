@@ -47,6 +47,9 @@ jobs:
           AUTH0_PLATFORM_CLIENT_SECRET: ${{ secrets.AUTH0_PLATFORM_CLIENT_SECRET_DEV }}
           AUTH0_PLATFORM_AUDIENCE: ${{ secrets.AUTH0_PLATFORM_AUDIENCE_DEV }}
           STAGE: dev
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+          GITHUB_ENTERPRISE_HOST: api.github.com
+
       - uses: ravsamhq/notify-slack-action@v1
         if: always()
         with:

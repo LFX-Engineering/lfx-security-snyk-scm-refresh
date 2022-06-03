@@ -73,6 +73,8 @@ provider:
     AUTH0_PLATFORM_AUDIENCE: ${env:AUTH0_PLATFORM_AUDIENCE}
     # Logging format, text or json
     LOG_FORMAT: json
+    GITHUB_ENTERPRISE_HOST: ${env:GITHUB_ENTERPRISE_HOST}
+    SNYK_TOKEN: ${env:SNYK_TOKEN}
 
   stackTags:
     Name: ${self:service}

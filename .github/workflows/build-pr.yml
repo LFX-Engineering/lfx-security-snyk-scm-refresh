@@ -33,6 +33,9 @@ jobs:
         run: |
           echo "Python version is: $(python --version)"
           pip install -r requirements.txt
+      - name: Linting
+        run: |
+          flake8 main.py
       - uses: ravsamhq/notify-slack-action@v1
         if: always()
         with:
