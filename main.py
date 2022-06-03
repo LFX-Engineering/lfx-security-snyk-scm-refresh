@@ -13,7 +13,7 @@ from app import run
 import common
 
 
-env_list = ["GITHUB_ENTERPRISE_HOST", "GITHUB_ENTERPRISE_TOKEN", "SNYK_TOKEN"]
+env_list = ["GITHUB_ENTERPRISE_HOST"]
 
 
 def validate_event(key, event_body, valid_data):
@@ -106,6 +106,7 @@ def lambda_handler(event: Dict[str, Any], context) -> Dict[str, Any]:
 
 def main():
     # invoked from the command line
+    # TODO: parse event details from the command line, remove hard-coded values, consider using the click library
     event = {"body": '{"org_id": "033c4e75-4881-4787-8e84-c7cc3bed4620"}'}
     context = {"function_name": "lfx-security-snyk-scm-refresh"}
     lambda_handler(event, context)

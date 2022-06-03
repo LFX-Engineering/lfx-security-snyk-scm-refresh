@@ -2,7 +2,7 @@
 # Copyright The Linux Foundation and each contributor to LFX.
 # SPDX-License-Identifier: MIT
 
-name: Snyk Scan
+name: Snyk Scan Node
 
 on:
   # https://docs.github.com/en/actions/learn-github-actions/workflow-syntax-for-github-actions
@@ -19,29 +19,38 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: '14'
-      - name: Setup python
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.9' # Version range or exact version of a Python version to use, using SemVer's version range syntax
+
       - name: Setup
         run: |
           echo "Node version is: $(node --version)"
           echo "Yarn version is: $(yarn --version)"
           echo "Running top level install..."
-          yarn install
-      - name: Install Python Dependencies
+
+      - name: Install Dependencies
         run: |
-          echo "Python version is: $(python --version)"
-          pip install -r requirements.txt
-      - name: Run Snyk to check for vulnerabilities
-        uses: snyk/actions/node@master
+          yarn install
+
+      - name: Install Snyk
+        run: yarn global add snyk
+
+      - name: Set Results Variable
+        id: vars
+        run: echo ::set-output name=snyk_results::$(snyk test --org=${{ secrets.SNYK_ORG }} --file=package.json)
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-          SNYK_ORG: ${{ secrets.SNYK_ORG }}
-        with:
-          command: test
-          args: --org=${{ secrets.SNYK_ORG }} --severity-threshold=high --all-projects
-      - name: Run Snyk to upload vulnerabilities
+
+      - name: Generate Scan Summary
+        run: |
+          # Send results to the GitHub Action markdown summary page
+          cat >> $GITHUB_STEP_SUMMARY <<- EOM
+          ### Snyk Snyk Node Audit Report
+          Results from the snyk node vulnerabilities report are:
+          ```code
+          ${{ steps.vars.outputs.snyk_results }}
+          ```
+          EOM
+
+      - name: Snyk Monitor
         uses: snyk/actions/node@master
         continue-on-error: true
         env:
@@ -49,16 +58,18 @@ jobs:
           SNYK_ORG: ${{ secrets.SNYK_ORG }}
         with:
           command: monitor
-          args: --org=${{ secrets.SNYK_ORG }} --severity-threshold=high --all-projects
-      - uses: ravsamhq/notify-slack-action@v1
+          args: --org=${{ secrets.SNYK_ORG }} --file=package.json
+
+      - name: Slack Notification
+        uses: ravsamhq/notify-slack-action@v1
         if: always()
         with:
           status: ${{ job.status }}
           token: ${{ secrets.GITHUB_TOKEN }}
           notification_title: '{workflow} has {status_message}'
-          message_format: '{emoji} {workflow} {status_message} for repository <{repo_url}|{repo}@{branch}> on <{commit_url}|{commit_sha}>'
+          message_format: '{emoji} {workflow} {status_message} for repository <{repo_url}|{repo}@{branch}> on <{commit_url}|{commit_sha}> Snyk Results: ${{ steps.vars.outputs.snyk_results }}'
           footer: 'Repository: <{repo_url}|{repo}> | <{workflow_url}|View Workflow>'
-          mention_users: 'UH8CHEUQL,UNLDL97LZ'
+          mention_users: 'UH8CHEUQL'
           notify_when: 'failure'
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
