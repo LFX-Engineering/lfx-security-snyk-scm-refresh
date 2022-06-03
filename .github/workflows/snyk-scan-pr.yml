@@ -29,7 +29,7 @@ jobs:
           echo "Yarn version is: $(yarn --version)"
           echo "Running top level install..."
           yarn install
-      - name: Install Python Dependences
+      - name: Install Python Dependencies
         run: |
           echo "Python version is: $(python --version)"
           pip install -r requirements.txt
