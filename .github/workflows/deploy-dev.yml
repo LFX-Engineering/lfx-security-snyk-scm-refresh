@@ -29,7 +29,7 @@ jobs:
           echo "Yarn version is: $(yarn --version)"
           echo "Running top level install..."
           yarn install
-      - name: Install Python Dependences
+      - name: Install Python Dependencies
         run: |
           echo "Python version is: $(python --version)"
           pip install -r requirements.txt
@@ -47,6 +47,8 @@ jobs:
           AUTH0_PLATFORM_CLIENT_SECRET: ${{ secrets.AUTH0_PLATFORM_CLIENT_SECRET_DEV }}
           AUTH0_PLATFORM_AUDIENCE: ${{ secrets.AUTH0_PLATFORM_AUDIENCE_DEV }}
           STAGE: dev
+          GITHUB_ENTERPRISE_HOST: api.github.com
+
       - uses: ravsamhq/notify-slack-action@v1
         if: always()
         with:

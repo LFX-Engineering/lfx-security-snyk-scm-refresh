@@ -1,4 +1,9 @@
-# lfx-security-snyk-scm-refresh
+# LFX Security Snyk SCM Refresh Lambda
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Build PR](https://github.com/LFX-Engineering/lfx-security-snyk-scm-refresh/workflows/Build%20and%20Test%20Pull%20Request/badge.svg)](https://github.com/LFX-Engineering/lfx-security-snyk-scm-refresh/actions)
+[![Build PR](https://github.com/LFX-Engineering/lfx-security-snyk-scm-refresh/workflows/Snyk%20Scan/badge.svg)](https://github.com/LFX-Engineering/lfx-security-snyk-scm-refresh/actions)
+[![Build PR](https://github.com/LFX-Engineering/lfx-security-snyk-scm-refresh/workflows/Yarn%20Dependency%20Audit/badge.svg)](https://github.com/LFX-Engineering/lfx-security-snyk-scm-refresh/actions)
 
 This is a wrapper lambda for the [Snyk SCM refresh python tool](https://github.com/snyk-tech-services/snyk-scm-refresh) which cleans up the Snyk projects after a successful scan.
 
@@ -23,44 +28,14 @@ yarn deploy:dev
 ```
 
 ## Command Line Testing
-### Setup
-Add dependencies
-``` bash
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-```
-Add the Snyk Scm tool
- ``` bash
- cd lfx-security-snyk-scm-refresh
- git clone git clone https://github.com/snyk-tech-services/snyk-scm-refresh.git
- ```
 
-Add Module values that help adding the tool to the PYTHONPATH 
-
-``` bash
-cd snyk-scm-refresh
-touch __init__.py
-cat << 'EOF' > __init__.py
-import common
-from app import run
-EOF
-
-```
-
-
-### Environment variables
-
-```
-export PYTHONPATH="$PWD:$PWD/snyk-scm-refresh"
-export GITHUB_ENTERPRISE_HOST=<redacted>
-export GITHUB_ENTERPRISE_TOKEN=<redacted>
-export SNYK_TOKEN=<redacted>
-```
-
-### Run 
-```
-python main.py
+```bash
+# First: Log into your AWS account for the appropriate environment
+# Second: invoke using the desired payload, ensure github_enterprise_token, one can add extra params like repo_name, org_id for 
+aws --region us-east-2 lambda invoke \
+  --function-name lfx-security-snyk-scm-refresh \
+  --cli-binary-format raw-in-base64-out \
+  --payload '{"github_enterprise_token":"XXXX","repo_name":"easycla...","org_id":"org"}' \
 ```
 
 
