@@ -1,0 +1,92 @@
+---
+# Copyright The Linux Foundation and each contributor to LFX.
+# SPDX-License-Identifier: MIT
+
+name: Snyk Scan Python
+
+on:
+  # https://docs.github.com/en/actions/learn-github-actions/workflow-syntax-for-github-actions
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+      - name: Setup python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9' # Version range or exact version of a Python version to use, using SemVer's version range syntax
+
+      - name: Install Snyk
+        run: yarn global add snyk
+
+      - name: Install Python Dependencies
+        run: |
+          echo "Python version is: $(python --version)"
+          pip install -r requirements.txt
+
+      - name: Set Results Variable
+        id: vars
+        run: |
+          # Continue if an error occurs
+          set +e
+          results=$(snyk test --org=${{ secrets.SNYK_ORG }} --file=requirements.txt)
+
+          # Echo results to the log
+          echo ${results}
+
+          # Cleanup/Replace for multi-line support
+          #results="${results//'%'/'%25'}"
+          #results="${results//$'\n'/'%0A'}"
+          #results="${results//$'\r'/'%0D'}"
+
+          # Save to environment variable to allow other steps to access the string value
+          echo "::set-output name=snyk_results::$(echo ${results} | python3 -c 'import sys; print(sys.stdin.read().replace("\\","\\\\").replace("\"","\\\"").replace("\n","\\n"))' )\n"
+
+          # exit when any command fails
+          set -e
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      - name: Generate Scan Summary
+        if: always()
+        run: |
+          snyk_results="${{join(steps.vars.outputs.snyk_results, '\n')}}"
+          # Send results to the GitHub Action markdown summary page
+          cat >> $GITHUB_STEP_SUMMARY <<- EOM
+          ### Snyk Snyk Python Audit Report
+          Results from the snyk python vulnerabilities report are:
+          
+          ${snyk_results}
+          EOM
+
+      - name: Snyk Monitor
+        uses: snyk/actions/node@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+          SNYK_ORG: ${{ secrets.SNYK_ORG }}
+        with:
+          command: monitor
+          args: --org=${{ secrets.SNYK_ORG }} --file=requirements.txt
+
+      - name: Slack Notification
+        uses: ravsamhq/notify-slack-action@v1
+        if: always()
+        with:
+          status: ${{ job.status }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          notification_title: '{workflow} has {status_message}'
+          message_format: '{emoji} {workflow} {status_message} for repository <{repo_url}|{repo}@{branch}> on <{commit_url}|{commit_sha}> Snyk Results: ${{ env.SNYK_RESULTS }}'
+          footer: 'Repository: <{repo_url}|{repo}> | <{workflow_url}|View Workflow>'
+          mention_users: 'UH8CHEUQL'
+          notify_when: 'failure'
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
