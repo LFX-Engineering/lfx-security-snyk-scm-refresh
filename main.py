@@ -13,7 +13,7 @@ from app import run
 import common
 
 
-env_list = ["GITHUB_ENTERPRISE_HOST"]
+env_list = ["GITHUB_ENTERPRISE_HOST", "SNYK_TOKEN"]
 
 
 def validate_event(key, event_body, valid_data):

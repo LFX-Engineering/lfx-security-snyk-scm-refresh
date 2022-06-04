@@ -39,15 +39,9 @@ jobs:
           echo "Deploying backend for stage ${STAGE} in region ${AWS_REGION}"
           SLS_DEBUG=* yarn sls deploy --verbose -s ${STAGE} -r ${AWS_REGION}
         env:
-          AWS_REGION: us-east-2
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_DEV }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_DEV }}
-          AUTH0_PLATFORM_URL: ${{ secrets.AUTH0_PLATFORM_URL_DEV }}
-          AUTH0_PLATFORM_CLIENT_ID: ${{ secrets.AUTH0_PLATFORM_CLIENT_ID_DEV }}
-          AUTH0_PLATFORM_CLIENT_SECRET: ${{ secrets.AUTH0_PLATFORM_CLIENT_SECRET_DEV }}
-          AUTH0_PLATFORM_AUDIENCE: ${{ secrets.AUTH0_PLATFORM_AUDIENCE_DEV }}
           STAGE: dev
           GITHUB_ENTERPRISE_HOST: api.github.com
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
       - uses: ravsamhq/notify-slack-action@v1
         if: always()
