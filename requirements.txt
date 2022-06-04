@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: MIT
 
 pysnyk==0.6.1
-PyGithub==1.47
+PyGithub==1.55
 requests==2.25.0
 urllib3==1.26.5
 flake8==4.0.1
