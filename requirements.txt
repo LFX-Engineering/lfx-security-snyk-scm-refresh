@@ -4,5 +4,5 @@
 pysnyk==0.6.1
 PyGithub==1.47
 requests==2.25.0
-urllib3==1.26.5
+urllib3==1.26.9
 flake8==4.0.1
