@@ -40,6 +40,9 @@ jobs:
           echo "Deploying backend for stage ${STAGE} in region ${AWS_REGION}"
           SLS_DEBUG=* yarn sls deploy --verbose -s ${STAGE} -r ${AWS_REGION}
         env:
+          AWS_REGION: us-east-2
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_PROD }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_PROD }}
           STAGE: prod
           GITHUB_ENTERPRISE_HOST: api.github.com
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
