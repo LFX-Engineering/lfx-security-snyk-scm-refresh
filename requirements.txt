@@ -6,3 +6,4 @@ PyGithub==1.55
 requests==2.27.1
 urllib3==1.26.9
 flake8==4.0.1
+click==7.1.1

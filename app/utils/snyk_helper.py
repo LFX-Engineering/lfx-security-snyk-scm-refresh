@@ -15,18 +15,17 @@ def app_print(org, repo, text):
 def log_potential_delete(org_name, repo_name):
     """ Log potential repo deletion """
     app_print(org_name, repo_name, "Logging potential delete")
-    common.POTENTIAL_DELETES_FILE.write(f"{org_name},{repo_name}\n")
 
 def log_updated_project_branch(org_name, project_id, project_name, new_branch):
     """ Log project branch update """
-    common.UPDATED_PROJECT_BRANCHES_FILE.write(f"{org_name},"
+    print(f"{org_name},"
                                                f"{project_name},"
                                                f"{project_id},"
                                                f"{new_branch}\n")
 
 def log_update_project_branch_error(org_name, project_id, project_name, new_branch):
     """ Log project branch update """
-    common.UPDATE_PROJECT_BRANCHES_ERRORS_FILE.write(
+    print(
         f"{org_name},"
         f"{project_name},"
         f"{project_id},"
@@ -34,7 +33,7 @@ def log_update_project_branch_error(org_name, project_id, project_name, new_bran
 
 def log_audit_large_repo_result(org_name: str, repo_name: str, is_large: str):
     """ Log audit large repo result """
-    common.LARGE_REPOS_AUDIT_RESULTS_FILE.write(
+    print(
         f"{org_name},"
         f"{repo_name},"
         f"{is_large}\n")
