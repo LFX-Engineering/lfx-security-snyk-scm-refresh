@@ -12,6 +12,8 @@ from datetime import datetime
 from app import run
 import common
 
+import click
+
 
 env_list = ["GITHUB_ENTERPRISE_HOST", "SNYK_TOKEN"]
 
@@ -69,9 +71,7 @@ def parse_event(event_body):
         common.ARGS.audit_large_repos = event_body.get("audit_large_repos")
     if event_body.get("debug"):
         common.ARGS.debug = event_body.get("debug")
-    os.environ["GITHUB_ENTERPRISE_TOKEN"] = event_body.get(
-        "github_enterprise_token"
-    )
+    os.environ["GITHUB_ENTERPRISE_TOKEN"] = event_body.get("github_enterprise_token")
 
 
 def lambda_handler(event: Dict[str, Any], context) -> Dict[str, Any]:
@@ -80,9 +80,7 @@ def lambda_handler(event: Dict[str, Any], context) -> Dict[str, Any]:
     print(f"{fn} - received event: {event} with context: {context}")
 
     if "body" not in event:
-        print(
-            f"{fn} - received event with no body - unable to process message"
-        )
+        print(f"{fn} - received event with no body - unable to process message")
         return {}
 
     event_body = json.loads(event["body"])
@@ -104,13 +102,87 @@ def lambda_handler(event: Dict[str, Any], context) -> Dict[str, Any]:
     print(f"Finished processing - duration: {datetime.now() - start_time}")
 
 
-def main():
+@click.command(context_settings={"help_option_names": ["-h", "--help"]})
+@click.option(
+    "--org-id",
+    is_flag=False,
+    type=click.STRING,
+    help="github organization identifier",
+)
+@click.option("--repo-name", is_flag=False, type=click.STRING, help="github repository name")
+@click.option(
+    "--sca",
+    is_flag=False,
+    type=click.Choice(["on", "off"]),
+    help="scan for SCA manifests (on by default)",
+    default="on",
+)
+@click.option(
+    "--container",
+    is_flag=False,
+    type=click.Choice(["on", "off"]),
+    help="can for container projects, e.g. Dockerfile (on by\
+                        default)",
+    default="on",
+)
+@click.option(
+    "--iac",
+    is_flag=False,
+    type=click.Choice(["on", "off"]),
+    help=" scan for IAC manifests (experimental, off by default)",
+    default="on",
+)
+@click.option(
+    "--code",
+    is_flag=False,
+    type=click.Choice(["on", "off"]),
+    help="create code analysis if not present (experimental, off\
+                        by default)",
+    default="on",
+)
+@click.option("--dry-run", is_flag=True, help="flag to indicate if this is a dry run", default=False)
+@click.option(
+    "--skip-scm-validation", is_flag=True, help="Skip validation of the TLS certificate used by the SCM", default=False
+)
+@click.option(
+    "--audit-large-repos",
+    is_flag=True,
+    help="only query github tree api to see if the response is\
+                        truncated and log the result. These are the repos that\
+                        would have be cloned via this tool",
+    default=False,
+)
+@click.option(
+    "--debug",
+    is_flag=True,
+    help="Write detailed debug data to snyk_scm_refresh.log for\
+                        troubleshooting",
+    default=False,
+)
+def main(org_id, repo_name, sca, container, iac, code, dry_run, skip_scm_validation, audit_large_repos, debug):
     # invoked from the command line
-    # TODO: parse event details from the command line, remove hard-coded values, consider using the click library
-    event = {"body": '{"org_id": "033c4e75-4881-4787-8e84-c7cc3bed4620"}'}
+
+    event_data = {
+        "sca": sca,
+        "container": container,
+        "iac": iac,
+        "code": code,
+        "dry_run": dry_run,
+        "skip_scm_validation": skip_scm_validation,
+        "audit_large_repos": audit_large_repos,
+        "debug": debug,
+        "github_enterprise_token": os.environ.get("GITHUB_ENTERPRISE_TOKEN"),
+    }
+    if org_id:
+        event_data["org_id"] = org_id
+    if repo_name:
+        event_data["repo_name"] = repo_name
+    event = {"body": json.dumps(event_data)}
     context = {"function_name": "lfx-security-snyk-scm-refresh"}
     lambda_handler(event, context)
 
 
 if __name__ == "__main__":
-    main()
+    import sys
+
+    sys.exit(main())
