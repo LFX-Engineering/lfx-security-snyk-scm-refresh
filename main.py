@@ -3,7 +3,6 @@
 # Copyright The Linux Foundation and each contributor to LFX.
 # SPDX-License-Identifier: MIT
 
-import json
 import os
 from typing import Any, Dict
 from datetime import datetime
@@ -83,7 +82,7 @@ def lambda_handler(event: Dict[str, Any], context) -> Dict[str, Any]:
         print(f"{fn} - received event with no body - unable to process message")
         return {}
 
-    event_body = json.loads(event["body"])
+    event_body = event["body"]
     print(f"{fn} - event {type(event_body)}: {event_body}")
 
     # Check the input - make sure we have everything
@@ -177,7 +176,7 @@ def main(org_id, repo_name, sca, container, iac, code, dry_run, skip_scm_validat
         event_data["org_id"] = org_id
     if repo_name:
         event_data["repo_name"] = repo_name
-    event = {"body": json.dumps(event_data)}
+    event = {"body": event_data}
     context = {"function_name": "lfx-security-snyk-scm-refresh"}
     lambda_handler(event, context)
 
