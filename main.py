@@ -42,18 +42,18 @@ def validate_input(event_body: Dict[str, Any]) -> bool:
             valid = False
             break
 
-    if "github_enterprise_token" not in event_body:
-        print(f"{fn} github_enterprise_token is empty")
+    if "github_auth_token" not in event_body:
+        print(f"{fn} github_auth_token is empty")
         valid = False
 
     return valid
 
 
 def parse_event(event_body):
-    if event_body.get("org_id"):
-        common.ARGS.org_id = event_body.get("org_id")
-    if event_body.get("repo_name"):
-        common.ARGS.repo_name = event_body.get("repo_name")
+    if event_body.get("snyk_organization_id"):
+        common.ARGS.org_id = event_body.get("snyk_organization_id")
+    if event_body.get("repository_id"):
+        common.ARGS.repo_name = event_body.get("repository_id")
     if event_body.get("sca"):
         common.ARGS.sca = event_body.get("sca")
     if event_body.get("container"):
@@ -70,7 +70,7 @@ def parse_event(event_body):
         common.ARGS.audit_large_repos = event_body.get("audit_large_repos")
     if event_body.get("debug"):
         common.ARGS.debug = event_body.get("debug")
-    os.environ["GITHUB_ENTERPRISE_TOKEN"] = event_body.get("github_enterprise_token")
+    os.environ["GITHUB_ENTERPRISE_TOKEN"] = event_body.get("github_auth_token")
 
 
 def lambda_handler(event: Dict[str, Any], context) -> Dict[str, Any]:
@@ -170,7 +170,7 @@ def main(org_id, repo_name, sca, container, iac, code, dry_run, skip_scm_validat
         "skip_scm_validation": skip_scm_validation,
         "audit_large_repos": audit_large_repos,
         "debug": debug,
-        "github_enterprise_token": os.environ.get("GITHUB_ENTERPRISE_TOKEN"),
+        "github_auth_token": os.environ.get("GITHUB_ENTERPRISE_TOKEN"),
     }
     if org_id:
         event_data["org_id"] = org_id
