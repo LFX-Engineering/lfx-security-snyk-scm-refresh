@@ -116,7 +116,7 @@ def lambda_handler(event: Dict[str, Any], context) -> Dict[str, Any]:
         return {}
 
     event_body = event["body"]
-    print(f"{fn} - event {type(event_body)}: {event_body}")
+    print(f"{fn} - event : {event_body}")
 
     # Check the input - make sure we have everything
     if not validate_input(event_body):
