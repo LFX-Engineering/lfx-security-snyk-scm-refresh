@@ -6,6 +6,8 @@
 import os
 from typing import Any, Dict
 from datetime import datetime
+import psycopg2
+from urllib.parse import urlparse
 
 
 from app import run
@@ -15,6 +17,29 @@ import click
 
 
 env_list = ["GITHUB_ENTERPRISE_HOST", "SNYK_TOKEN"]
+
+
+def connect(db_url):
+    """Connect to the PostgreSQL database server"""
+    conn = None
+    try:
+        # parse the db url
+        parsed = urlparse(db_url)
+
+        # connect to the PostgreSQL server
+        print("Connecting to the PostgreSQL database...")
+        conn = psycopg2.connect(
+            database=parsed.path.strip("/"),
+            user=parsed.username,
+            password=parsed.password,
+            host=parsed.hostname,
+            port=parsed.port,
+        )
+        print("Connected...")
+        return conn
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+        return
 
 
 def validate_event(key, event_body, valid_data):
@@ -44,6 +69,14 @@ def validate_input(event_body: Dict[str, Any]) -> bool:
 
     if "github_auth_token" not in event_body:
         print(f"{fn} github_auth_token is empty")
+        valid = False
+
+    if "type" not in event_body:
+        print(f"{fn} job_type is empty")
+        valid = False
+
+    if "project_sfid" not in event_body:
+        print(f"{fn} project_sfid is empty")
         valid = False
 
     return valid
@@ -89,15 +122,37 @@ def lambda_handler(event: Dict[str, Any], context) -> Dict[str, Any]:
     if not validate_input(event_body):
         return {}
 
+    cursor = None
+    status = None
+    pg_conn = None
+
     try:
+        pg_conn = connect(os.environ.get("DATABASE_URL"))
+        cursor = pg_conn.cursor()
         # populate snyk-scm-refresh command line args based on event data
         parse_event(event_body)
 
         # invoke the scm-refresh tool
         run()
+
+        status = "invoked"
+
     except Exception as ex:
         print(f"{fn} - error: {ex}")
+        status = f"invoked error - {ex}"
 
+    if cursor:
+        project_sfid = event_body.get("project_sfid")
+        type = event_body.get("type")
+        cursor.execute(
+            "UPDATE public.scheduler_tasks SET status = (%s) WHERE project_sfid = (%s) and job_type =(%s)",
+            (status, project_sfid, type),
+        )
+        pg_conn.commit()
+        cursor.close()
+
+    if pg_conn:
+        pg_conn.close()
     print(f"Finished processing - duration: {datetime.now() - start_time}")
 
 

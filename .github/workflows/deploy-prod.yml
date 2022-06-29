@@ -46,6 +46,7 @@ jobs:
           STAGE: prod
           GITHUB_ENTERPRISE_HOST: api.github.com
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - uses: ravsamhq/notify-slack-action@v1
         if: always()
