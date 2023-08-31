@@ -1,7 +1,7 @@
 # Copyright The Linux Foundation and each contributor to LFX.
 # SPDX-License-Identifier: MIT
 
-pysnyk==0.9.3
+pysnyk==0.9.12
 PyGithub==1.55
 requests==2.28.1
 urllib3==1.26.9
